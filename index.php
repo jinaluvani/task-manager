@@ -83,7 +83,33 @@ $isAdmin = $isLoggedIn && $_SESSION['role'] === 'admin';
     <?php endif; ?>
 </div>
 
+<script>
+document.querySelectorAll('.complete-task').forEach(button => {
+    button.addEventListener('click', function () {
+        let taskId = this.getAttribute('data-id');
+        let buttonElement = this;
+        let row = buttonElement.closest('tr');
+        let statusCell = row.querySelector('td#status');
 
+        fetch('mark_task_complete.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'task_id=' + taskId
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                buttonElement.style.display = 'none';
+
+                // Update the status column to "Completed"
+                statusCell.textContent = 'Completed';
+            } else {
+                alert(data.message || "Failed to update task.");
+            }
+        });
+    });
+});
+</script>
 
 </body>
 </html>
