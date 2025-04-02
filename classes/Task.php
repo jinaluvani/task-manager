@@ -15,8 +15,9 @@ class Task {
     }
 
     public function getTasks($user_id, $isAdmin) {
-        if ($isAdmin) {
+        if ($isAdmin == 1) {
             $stmt = $this->conn->prepare("SELECT * FROM tasks");
+            $stmt->execute();
         } else {
             $stmt = $this->conn->prepare("SELECT * FROM tasks WHERE user_id = ?");
             $stmt->execute([$user_id]);

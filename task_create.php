@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($taskCreated) {
         echo "Task created successfully!";
-        header("Location: tasks.php");
+        header("Location: index.php");
         exit();
     } else {
         echo "Error creating task.";
