@@ -1,15 +1,16 @@
-Task Management System
+## Task Management System
 
 This is a simple Task Management System built with PHP, MySQL, and Bootstrap. It allows users to create, edit, update, and manage tasks with priorities, statuses, and assignments.
 
-📌 Features
-✔ User authentication (login/logout)
-✔ Task creation & editing
-✔ Assign tasks to users (Admin only)
-✔ Priorities & statuses for tasks
-✔ Bootstrap UI for a modern look
+## ✨ Features  
+- **User Authentication** – Secure login/logout functionality  
+- **Task Management** – Create, edit, update, and delete tasks  
+- **Role-Based Access** – Admins can assign tasks to users  
+- **Task Priorities & Statuses** – Organize tasks efficiently  
+- **Bootstrap-Powered UI** – Modern, responsive design  
 
-🚀 Installation & Setup
+
+## 🚀 Installation & Setup
 
 1️⃣ Clone the Repository
 
@@ -37,4 +38,3 @@ http://localhost/task-management/
 Login using test credentials (or register a new user).
 
 Start managing tasks! 🎯
-
