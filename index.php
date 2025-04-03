@@ -19,96 +19,94 @@ $isAdmin = $isLoggedIn && $_SESSION['role'] === 'admin';
     <title>Task Management System</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    
+
+    <style>
+        
+    </style>
 </head>
 <body>
 
-<div class="container">
+<?php include 'navbar.php'; ?>
+
+<div class="container mt-4">
     <header>
         <h1>Task Management System</h1>
-        <button id="dark-mode-toggle">Toggle Dark Mode</button>
     </header>
 
     <?php if ($isLoggedIn): ?>
-        
-        <nav class="navbar navbar-inverse">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">Task Management</a>
-                </div>
-                <ul class="nav navbar-nav navbar-right">
-                    <?php if ($isLoggedIn): ?>
-                        <li><a href="#"><span class="glyphicon glyphicon-user"></span> <?= htmlspecialchars($_SESSION['name']) ?></a></li>
-                        <li><a href="tasks.php"><span class="glyphicon glyphicon-tasks"></span> My Tasks</a></li>
-                        <li><a href="task_create.php"><span class="glyphicon glyphicon-plus"></span> Add Task</a></li>
-                        <?php if ($isAdmin): ?>
-                            <li><a href="admin_dashboard.php"><span class="glyphicon glyphicon-cog"></span> Admin Panel</a></li>
-                        <?php endif; ?>
-                        <li><a href="logout.php"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-                    <?php else: ?>
-                        <li><a href="login.php"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-                        <li><a href="register.php"><span class="glyphicon glyphicon-user"></span> Register</a></li>
-                    <?php endif; ?>
-                </ul>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">Task Overview</div>
+            <div class="panel-body">
+                <table class="table table-bordered" id="dataTables-task">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <?php if ($isAdmin): ?>
+                                <th>Actions</th>
+                            <?php endif; ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $tasks = $task->getTasks($_SESSION['user_id'], $isAdmin);
+                        $users = $user->getAllUsers();
+                        foreach ($tasks as $t): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($t['title']) ?></td>
+                                <td><?= htmlspecialchars($t['due_date']) ?></td>
+                                <td><span class="label label-<?= $t['status'] === 'Completed' ? 'success' : 'warning' ?>">
+                                    <?= htmlspecialchars($t['status']) ?></span>
+                                </td>
+                                <td><?= $t['assigned_user'] ? htmlspecialchars($t['assigned_user']) : 'Unassigned' ?></td>
+                                <?php if ($isAdmin): ?>
+                                    <td>
+                                        <select class="form-control assign-task" data-id="<?= $t['id'] ?>">
+                                            <option value="">Select User</option>
+                                            <?php foreach ($users as $user): ?>
+                                                <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                <?php endif; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
-        </nav>
+        </div>
 
-        <h2>Task Overview</h2>
-        <table border="1">
-            <tr>
-                <th>Title</th>
-                <th>Due Date</th>
-                <th>Status</th>
-            </tr>
-            <?php
-            $tasks = $task->getTasks($_SESSION['user_id'], $isAdmin);
-            foreach ($tasks as $t): ?>
-                <tr>
-                    <td><?= htmlspecialchars($t['title']) ?></td>
-                    <td><?= htmlspecialchars($t['due_date']) ?></td>
-                    <td id = "status"><?= htmlspecialchars($t['status']) ?></td>
-                    <td>
-                        <?php if ($t['status'] !== 'Completed'): ?>
-                            <button class="complete-task" data-id="<?= $t['id'] ?>">Mark as Completed</button>
-                        <?php endif; ?>
-                    </td>
-
-                </tr>
-            <?php endforeach; ?>
-        </table>
 
     <?php else: ?>
         <div class="alert alert-warning">You are not logged in. Please <a href="login.php">Login</a> or <a href="register.php">Register</a>.</div>
     <?php endif; ?>
 </div>
 
+<script src="main.js"></script>
 <script>
-document.querySelectorAll('.complete-task').forEach(button => {
-    button.addEventListener('click', function () {
-        let taskId = this.getAttribute('data-id');
-        let buttonElement = this;
-        let row = buttonElement.closest('tr');
-        let statusCell = row.querySelector('td#status');
-
-        fetch('mark_task_complete.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'task_id=' + taskId
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                buttonElement.style.display = 'none';
-
-                // Update the status column to "Completed"
-                statusCell.textContent = 'Completed';
-            } else {
-                alert(data.message || "Failed to update task.");
-            }
-        });
-    });
+$(document).ready(function() {
+    $('#dataTables-task').DataTable();
 });
+
+
+$(document).on('change', '.assign-task', function () {
+    var taskId = $(this).data('id');
+    var userId = $(this).val();
+
+    $.post('assign_task.php', { task_id: taskId, assigned_to: userId }, function (response) {
+        alert(response.message);
+        location.reload();
+    }, 'json');
+});
+
 </script>
 
 </body>

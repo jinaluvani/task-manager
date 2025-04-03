@@ -1,0 +1,15 @@
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+.dark-mode .navbar, .dark-mode .panel, .dark-mode .table {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+.dark-mode .table tbody tr {
+    background-color: #252525;
+}
+.dark-mode .btn-dark {
+    background-color: #f8f9fa;
+    color: #000;
+}

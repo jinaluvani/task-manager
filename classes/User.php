@@ -37,5 +37,12 @@ class User {
         header("Location: login.php");
     }
 
+    public function getAllUsers() {
+        $stmt = $this->conn->prepare("SELECT id, name, email, role FROM users WHERE role != 'admin'");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+
 }
 ?>
